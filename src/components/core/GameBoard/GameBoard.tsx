@@ -13,11 +13,21 @@ interface GameBoardProps {
 }
 
 export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
-  const { state, selectLetter, clearSelection, submitWord } = useGame();
+  const { state, selectLetter, clearSelection, submitWord, startGame } = useGame();
   const { preferences } = usePreferences();
   
+  // Debug output
   const [cellSize, setCellSize] = useState(60);
   const [isMouseDown, setIsMouseDown] = useState(false);
+  
+  console.log('GameBoard rendering with state:', { 
+    gameStatus: state.gameStatus,
+    boardSize: state.boardSize,
+    boardLength: state.board.length,
+    selectedPath: state.selectedPath.map(p => `(${p.row},${p.col})`).join(' → '),
+    currentWord: state.currentWord,
+    isMouseDown
+  });
   const boardRef = useRef<HTMLDivElement>(null);
   
   // Resize cells based on board size
@@ -44,8 +54,14 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
   const handleMouseDown = (position: Position) => {
     if (state.gameStatus !== 'active') return;
     
+    // Clear any existing selection first
+    clearSelection();
+    
+    // Set mouse down state and select the letter
     setIsMouseDown(true);
     selectLetter(position);
+    
+    console.log(`Mouse down at (${position.row},${position.col})`);
   };
   
   // Handle mouse/touch move
@@ -70,15 +86,39 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
     const x = clientX - rect.left;
     const y = clientY - rect.top;
     
+    // Get the cell under the cursor
     const position = getPositionFromCoordinates(x, y, cellSize);
     
+    // Ensure we're within board boundaries
     if (
       position.row >= 0 &&
       position.row < state.boardSize &&
       position.col >= 0 &&
       position.col < state.boardSize
     ) {
-      selectLetter(position);
+      // Get the last selected position
+      const lastPosition = state.selectedPath[state.selectedPath.length - 1];
+      
+      // Don't allow selecting the same cell twice
+      const isAlreadySelected = state.selectedPath.some(
+        p => p.row === position.row && p.col === position.col
+      );
+      
+      if (isAlreadySelected) {
+        return;
+      }
+      
+      // Only attempt to select if we have a last position and this new position is adjacent
+      const isAdjacent = lastPosition ? (
+        Math.abs(lastPosition.row - position.row) <= 1 && 
+        Math.abs(lastPosition.col - position.col) <= 1 && 
+        !(lastPosition.row === position.row && lastPosition.col === position.col)
+      ) : true;
+      
+      if (isAdjacent) {
+        console.log(`Selecting at (${position.row},${position.col}) from (${lastPosition?.row},${lastPosition?.col})`);
+        selectLetter(position);
+      }
     }
   };
   
@@ -87,15 +127,22 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
     if (!isMouseDown) return;
     
     setIsMouseDown(false);
+    console.log(`Mouse up with word: ${state.currentWord} (length: ${state.currentWord.length})`);
     
-    if (state.currentWord.length >= 3) {
-      submitWord();
-      if (onWordSubmit) {
-        onWordSubmit();
+    // Add a small delay before submitting or clearing to prevent race conditions
+    setTimeout(() => {
+      // Make sure we still have the same state reference
+      if (state.currentWord.length >= 3) {
+        console.log(`Submitting word: ${state.currentWord}`);
+        submitWord();
+        if (onWordSubmit) {
+          onWordSubmit();
+        }
+      } else if (state.currentWord.length > 0) {
+        console.log(`Clearing selection, word too short: ${state.currentWord}`);
+        clearSelection();
       }
-    } else {
-      clearSelection();
-    }
+    }, 50);
   };
   
   // Get cell class based on its state
@@ -103,7 +150,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
     const cell = state.board[row][col];
     let baseClass = 'relative flex items-center justify-center font-bold rounded-md transition-all cursor-pointer select-none';
     
-    // Apply size
+    // Apply dynamic sizing
     baseClass += ` w-[${cellSize}px] h-[${cellSize}px] text-[${Math.floor(cellSize * 0.4)}px]`;
     
     // Apply colors based on state
@@ -124,10 +171,21 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
     return baseClass;
   };
 
+  // Function to start a test game with default settings
+  const handleStartTestGame = () => {
+    startGame(4, 'medium', 180);
+  };
+
   if (state.board.length === 0) {
     return (
-      <div className="flex items-center justify-center p-4 bg-gray-100 dark:bg-gray-800 rounded-xl">
-        <p className="text-gray-500 dark:text-gray-400">Start a new game to generate a board</p>
+      <div className="flex flex-col items-center justify-center p-4 bg-gray-100 dark:bg-gray-800 rounded-xl">
+        <p className="text-gray-500 dark:text-gray-400 mb-4">Start a new game to generate a board</p>
+        <button 
+          onClick={handleStartTestGame}
+          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+        >
+          Start Test Game
+        </button>
       </div>
     );
   }
@@ -142,6 +200,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
       onTouchMove={handleMouseMove}
       onTouchEnd={handleMouseUp}
       onTouchCancel={handleMouseUp}
+      onContextMenu={(e) => e.preventDefault()} // Prevent right-click menu
     >
       <div 
         className="grid gap-1"
@@ -151,23 +210,35 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
         }}
       >
         {state.board.map((row, rowIndex) =>
-          row.map((cell, colIndex) => (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              className={getCellClass(rowIndex, colIndex)}
-              onMouseDown={() => handleMouseDown({ row: rowIndex, col: colIndex })}
-              onTouchStart={() => handleMouseDown({ row: rowIndex, col: colIndex })}
-            >
-              {cell.char}
-              {cell.isSelected && (
-                <span className="absolute top-1 right-1 text-xs bg-white text-indigo-900 rounded-full w-5 h-5 flex items-center justify-center">
-                  {state.selectedPath.findIndex(
-                    p => p.row === rowIndex && p.col === colIndex
-                  ) + 1}
-                </span>
-              )}
-            </div>
-          ))
+          row.map((cell, colIndex) => {
+            const position = { row: rowIndex, col: colIndex };
+            return (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                className={getCellClass(rowIndex, colIndex)}
+                onMouseDown={(e) => {
+                  // Prevent default to avoid text selection
+                  e.preventDefault();
+                  handleMouseDown(position);
+                }}
+                onMouseEnter={() => {
+                  if (isMouseDown) {
+                    selectLetter(position);
+                  }
+                }}
+                onTouchStart={() => handleMouseDown(position)}
+              >
+                {cell.char}
+                {cell.isSelected && (
+                  <span className="absolute top-1 right-1 text-xs bg-white text-indigo-900 rounded-full w-5 h-5 flex items-center justify-center">
+                    {state.selectedPath.findIndex(
+                      p => p.row === rowIndex && p.col === colIndex
+                    ) + 1}
+                  </span>
+                )}
+              </div>
+            );
+          })
         )}
       </div>
       
