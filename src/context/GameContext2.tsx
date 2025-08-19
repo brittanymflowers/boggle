@@ -373,17 +373,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
   }
 };
 
-// Mock dictionary loading function
-const loadDictionary = async (language: string): Promise<Set<string>> => {
-  // For development, return a larger mock dictionary
-  return new Set([
-    'cat', 'dog', 'bat', 'rat', 'hat', 'sat', 'mat', 'fat', 'eat', 'tea', 'sea', 'pea',
-    'test', 'word', 'board', 'game', 'play', 'time', 'score', 'high', 'dice', 'roll',
-    'find', 'letter', 'quest', 'boggle', 'player', 'timer', 'point', 'bonus', 'move',
-    'win', 'lose', 'round', 'final', 'start', 'begin', 'mouse', 'touch', 'click', 'drag',
-    'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'this', 'that', 'them'
-  ]);
-};
+// Import the dictionary loader
+import { loadDictionary } from '../utils/dictionaryLoader';
 
 // Mock board generation function
 const generateBoard = (boardSize: number, difficulty: Difficulty): Letter[][] => {

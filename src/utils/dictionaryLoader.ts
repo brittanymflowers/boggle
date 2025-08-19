@@ -56,6 +56,36 @@ const commonFrenchWords = [
   'bonjour', 'merci', 'oui', 'non', 'rouge', 'bleu', 'vert', 'noir', 'blanc', 'bon',
 ];
 
+// Expanded English words for better gameplay
+const expandedEnglishWords = [
+  // Common short words suitable for Boggle
+  'act', 'add', 'age', 'ago', 'aid', 'aim', 'air', 'all', 'and', 'any', 'arm', 'art', 'ask', 'ate',
+  'bad', 'bag', 'ban', 'bar', 'bat', 'bay', 'bed', 'bee', 'beg', 'bet', 'bid', 'big', 'bit', 'boa', 'bob', 'bog', 'bow', 'box', 'boy', 'bud', 'bug', 'bum', 'bun', 'bus', 'but', 'buy',
+  'cab', 'can', 'cap', 'car', 'cat', 'cob', 'cod', 'cog', 'con', 'cop', 'cot', 'cow', 'cry', 'cub', 'cue', 'cup', 'cut',
+  'dad', 'dam', 'day', 'den', 'dew', 'did', 'die', 'dig', 'dim', 'dip', 'doe', 'dog', 'dot', 'dry', 'due', 'dug',
+  'ear', 'eat', 'ebb', 'egg', 'ego', 'elf', 'elk', 'elm', 'end', 'era', 'eve', 'eye',
+  'fad', 'fan', 'far', 'fat', 'fed', 'fee', 'few', 'fig', 'fin', 'fir', 'fit', 'fix', 'fly', 'foe', 'fog', 'for', 'fox', 'fry', 'fun', 'fur',
+  'gag', 'gap', 'gas', 'gel', 'gem', 'get', 'gig', 'gin', 'god', 'got', 'gum', 'gun', 'gut', 'guy', 'gym',
+  'had', 'hag', 'ham', 'has', 'hat', 'hay', 'hem', 'hen', 'her', 'hex', 'hey', 'hid', 'him', 'hip', 'his', 'hit', 'hog', 'hop', 'hot', 'how', 'hub', 'hue', 'hug', 'huh', 'hum', 'hut',
+  'ice', 'icy', 'ill', 'ink', 'inn', 'ion', 'its',
+  'jab', 'jam', 'jar', 'jaw', 'jay', 'jet', 'jew', 'job', 'jog', 'joy', 'jug',
+  'keg', 'key', 'kid', 'kin', 'kit',
+  'lab', 'lad', 'lag', 'lap', 'law', 'lay', 'led', 'leg', 'let', 'lid', 'lie', 'lip', 'lit', 'log', 'lot', 'low',
+  'mad', 'mag', 'man', 'map', 'mar', 'mat', 'may', 'men', 'met', 'mix', 'mob', 'mop', 'mud', 'mug', 'mum',
+  'nab', 'nag', 'nap', 'nay', 'net', 'new', 'nib', 'nil', 'nip', 'nit', 'nod', 'nor', 'not', 'now', 'nun', 'nut',
+  'oak', 'odd', 'off', 'oft', 'ohm', 'oil', 'old', 'one', 'orb', 'ore', 'our', 'out', 'owe', 'owl', 'own', 'ox',
+  'pad', 'pal', 'pan', 'pap', 'par', 'pat', 'paw', 'pay', 'pea', 'peg', 'pen', 'pep', 'per', 'pet', 'pew', 'pie', 'pig', 'pin', 'pip', 'pit', 'ply', 'pod', 'pop', 'pot', 'pow', 'pro', 'pry', 'pub', 'pug', 'pun', 'pup', 'put',
+  'quo',
+  'rag', 'rah', 'ram', 'ran', 'rap', 'rat', 'raw', 'ray', 'red', 'rib', 'rid', 'rig', 'rim', 'rip', 'rob', 'rod', 'roe', 'rot', 'row', 'rub', 'rue', 'rug', 'rum', 'run', 'rut',
+  'sad', 'sag', 'sal', 'sap', 'sat', 'saw', 'say', 'sea', 'see', 'set', 'sew', 'she', 'shy', 'sic', 'sig', 'sim', 'sin', 'sip', 'sir', 'sis', 'sit', 'six', 'ski', 'sky', 'sly', 'sob', 'sod', 'son', 'sow', 'soy', 'spa', 'spy', 'stir', 'sub', 'sue', 'sum', 'sun', 'sup',
+  'tab', 'tad', 'tag', 'tan', 'tap', 'tar', 'tat', 'tax', 'tea', 'tee', 'ten', 'the', 'thy', 'tic', 'tie', 'til', 'tin', 'tip', 'toe', 'tog', 'tom', 'ton', 'too', 'top', 'tow', 'toy', 'try', 'tub', 'tug', 'tut', 'tux',
+  'ugh',
+  'vat', 'vex', 'via', 'vie', 'vow',
+  'wad', 'wag', 'wan', 'war', 'was', 'wax', 'way', 'web', 'wed', 'wee', 'wet', 'who', 'why', 'wig', 'win', 'wit', 'woe', 'wok', 'won', 'woo', 'wow', 'wry', 'wye',
+  'yak', 'yam', 'yap', 'yaw', 'yay', 'yea', 'yen', 'yes', 'yet', 'yew', 'yip', 'you',
+  'zag', 'zap', 'zen', 'zig', 'zip', 'zit', 'zoo'
+];
+
 // Custom themed word lists (simplified for demo)
 const animalWords = [
   'dog', 'cat', 'bird', 'fish', 'lion', 'tiger', 'bear', 'wolf', 'fox', 'deer',
@@ -73,22 +103,23 @@ const foodWords = [
   'beer', 'wine', 'pizza', 'burger', 'fries', 'onion', 'garlic', 'carrot', 'potato', 'tomato',
 ];
 
-// Function to simulate loading a dictionary from a "server"
+// Function to load the dictionary - using local word lists only for stability
 export async function loadDictionary(language: string = 'english'): Promise<Set<string>> {
   // Check cache first
   if (dictionaryCache[language]) {
     return dictionaryCache[language];
   }
   
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 300));
-  
   let words: string[] = [];
   
   // Select word list based on language
   switch (language.toLowerCase()) {
     case 'english':
-      words = commonEnglishWords;
+      // Use expanded English word list
+      words = [
+        ...commonEnglishWords,
+        ...expandedEnglishWords
+      ];
       break;
     case 'spanish':
       words = commonSpanishWords;
@@ -112,12 +143,21 @@ export async function loadDictionary(language: string = 'english'): Promise<Set<
   // Cache for future use
   dictionaryCache[language] = dictionary;
   
+  console.log(`Loaded ${dictionary.size} words for ${language}`);
+  
   return dictionary;
 }
 
 // Function to get available dictionary options
 export function getAvailableDictionaries(): string[] {
   return ['english', 'spanish', 'french', 'animals', 'food'];
+}
+
+// Simple function to check if a word is valid using our dictionary
+export async function isWordValid(word: string): Promise<boolean> {
+  // Check if word is in our dictionary
+  const englishDictionary = await loadDictionary('english');
+  return englishDictionary.has(word.toLowerCase());
 }
 
 // Function to validate a custom word list
