@@ -117,7 +117,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
   const getCellClass = (row: number, col: number) => {
     const cell = state.board[row][col];
     let baseClass =
-      "relative flex items-center justify-center font-black rounded-lg border border-gray-400 transition-all cursor-pointer select-none aspect-square overflow-hidden";
+      "relative flex items-center justify-center font-black rounded-2xl border border-gray-400 transition-all cursor-pointer select-none aspect-square overflow-hidden rounded-tile";
 
     // Apply adaptive sizing based on cell size
     baseClass += ` w-[${cellSize}px] h-[${cellSize}px]`;
@@ -259,13 +259,14 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
                   {/* Visual indicator for selected cells */}
                   {cell.isSelected && (
                     <div 
-                      className="absolute rounded-md pointer-events-none z-0"
+                      className="absolute rounded-2xl pointer-events-none z-0"
                       style={{
                         left: '0px',
                         top: '0px',
                         right: '0px',
                         bottom: '0px',
-                        background: 'rgba(255,255,255,0.1)'
+                        background: 'rgba(255,255,255,0.15)',
+                        boxShadow: 'inset 0 0 10px rgba(255,255,255,0.3)'
                       }}
                     />
                   )}
