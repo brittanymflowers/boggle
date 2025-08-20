@@ -35,7 +35,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
 
   // Resize cells based on board size
   // Constants for tile gap
-  const TILE_GAP = 8;
+  const TILE_GAP = 12; // Increased from 8px to 12px
   
   useEffect(() => {
     if (!boardRef.current) return;
@@ -122,6 +122,14 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
     // Apply adaptive sizing based on cell size
     baseClass += ` w-[${cellSize}px] h-[${cellSize}px]`;
 
+    // Check if this is a Qu tile
+    const isQuTile = cell.char === "q" || cell.char === "Q" || cell.char === "QU" || cell.char === "Qu";
+
+    // Add extra padding for Qu tiles at larger board sizes
+    if (isQuTile && state.boardSize >= 5) {
+      baseClass += " p-1"; // Add some padding for Qu tiles on larger boards
+    }
+
     // Scale text size based on cell size but with a minimum
     const textSize = Math.max(Math.floor(cellSize * 0.7), 36);
     baseClass += ` text-[${textSize}px]`;
@@ -171,7 +179,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
   return (
     <div
       ref={boardRef}
-      className="w-full max-w-lg mx-auto p-4 bg-blue-900 dark:bg-blue-800 rounded-lg border-2 border-blue-300 shadow-lg"
+      className="w-full max-w-xl mx-auto p-5 bg-blue-900 dark:bg-blue-800 rounded-lg border-2 border-blue-300 shadow-lg"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -181,11 +189,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
       onContextMenu={(e) => e.preventDefault()} // Prevent right-click menu
     >
       <div
-        className="grid gap-2"
+        className={`grid board-size-${state.boardSize}`}
         style={{
           gridTemplateColumns: `repeat(${state.boardSize}, 1fr)`,
           gridTemplateRows: `repeat(${state.boardSize}, 1fr)`,
-          gap: "8px",
+          gap: "12px", // Increased from 8px to 12px for more spacing
         }}
       >
         {state.board.map((row, rowIndex) =>
@@ -238,11 +246,16 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
                 }}
               >
                 <div className="relative w-full h-full flex items-center justify-center">
-                  <span className="text-[64px] leading-none z-10">
-                    {cell.char === "q" || cell.char === "Q"
-                      ? "Qu"
-                      : cell.char.toUpperCase()}
-                  </span>
+                  {cell.char === "q" || cell.char === "Q" || cell.char === "QU" || cell.char === "Qu" ? (
+                    <span className="leading-none z-10 special-qu relative">
+                      <span className="text-[52px]">Q</span>
+                      <span className="text-[40px] font-semibold">u</span>
+                    </span>
+                  ) : (
+                    <span className="text-[64px] leading-none z-10">
+                      {cell.char.toUpperCase()}
+                    </span>
+                  )}
                   {/* Visual indicator for selected cells */}
                   {cell.isSelected && (
                     <div 

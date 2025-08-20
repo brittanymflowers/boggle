@@ -1,5 +1,5 @@
-import { createContext, useContext, useReducer, useEffect } from 'react';
-import type { ReactNode } from 'react';
+import { createContext, useContext, useReducer, useEffect } from "react";
+import type { ReactNode } from "react";
 
 // Define game types directly in this file
 interface Position {
@@ -14,7 +14,7 @@ interface Letter {
   isValidInPath: boolean;
 }
 
-type Difficulty = 'easy' | 'medium' | 'hard';
+type Difficulty = "easy" | "medium" | "hard";
 
 // Define remaining game types
 export interface Word {
@@ -24,7 +24,7 @@ export interface Word {
   timestamp: number;
 }
 
-export type GameStatus = 'ready' | 'active' | 'paused' | 'finished';
+export type GameStatus = "ready" | "active" | "paused" | "finished";
 
 export interface GameState {
   board: Letter[][];
@@ -49,37 +49,47 @@ export interface GameSettings {
 
 // Game Actions
 export type GameAction =
-  | { type: 'START_GAME'; payload: { boardSize: number; difficulty: Difficulty; timerDuration: number } }
-  | { type: 'PAUSE_GAME' }
-  | { type: 'RESUME_GAME' }
-  | { type: 'END_GAME' }
-  | { type: 'RESET_GAME' }
-  | { type: 'SELECT_LETTER'; payload: { position: Position } }
-  | { type: 'DESELECT_LETTER'; payload: { position: Position } }
-  | { type: 'CLEAR_SELECTION' }
-  | { type: 'SUBMIT_WORD' }
-  | { type: 'SET_TIMER'; payload: { timeRemaining: number } }
-  | { type: 'TICK_TIMER' }
-  | { type: 'SET_LANGUAGE'; payload: { language: string } }
-  | { type: 'SET_DICTIONARY'; payload: { dictionary: Set<string> } }
-  | { type: 'SET_DIFFICULTY'; payload: { difficulty: Difficulty } }
-  | { type: 'SET_BOARD_SIZE'; payload: { boardSize: number } }
-  | { type: 'SET_BOARD'; payload: { board: Letter[][] } };
+  | {
+      type: "START_GAME";
+      payload: {
+        boardSize: number;
+        difficulty: Difficulty;
+        timerDuration: number;
+      };
+    }
+  | { type: "PAUSE_GAME" }
+  | { type: "RESUME_GAME" }
+  | { type: "END_GAME" }
+  | { type: "RESET_GAME" }
+  | { type: "SELECT_LETTER"; payload: { position: Position } }
+  | { type: "DESELECT_LETTER"; payload: { position: Position } }
+  | { type: "CLEAR_SELECTION" }
+  | { type: "SUBMIT_WORD" }
+  | { type: "SET_TIMER"; payload: { timeRemaining: number } }
+  | { type: "TICK_TIMER" }
+  | { type: "SET_LANGUAGE"; payload: { language: string } }
+  | { type: "SET_DICTIONARY"; payload: { dictionary: Set<string> } }
+  | { type: "SET_DIFFICULTY"; payload: { difficulty: Difficulty } }
+  | { type: "SET_BOARD_SIZE"; payload: { boardSize: number } }
+  | { type: "SET_BOARD"; payload: { board: Letter[][] } };
 
 // Helper function to check if two positions are adjacent
-function isAdjacentToLastSelected(position: Position, lastSelected: Position): boolean {
+function isAdjacentToLastSelected(
+  position: Position,
+  lastSelected: Position
+): boolean {
   const rowDiff = Math.abs(position.row - lastSelected.row);
   const colDiff = Math.abs(position.col - lastSelected.col);
-  
+
   // Adjacent if both row and column differences are 0 or 1 (but not both 0)
-  return (rowDiff <= 1 && colDiff <= 1) && !(rowDiff === 0 && colDiff === 0);
+  return rowDiff <= 1 && colDiff <= 1 && !(rowDiff === 0 && colDiff === 0);
 }
 
 // Calculate word score based on word length
 function calculateWordScore(word: string): number {
   const length = word.length;
   let score = 0;
-  
+
   // Basic scoring based on Boggle rules
   if (length <= 2) score = 0;
   else if (length === 3) score = 1;
@@ -88,108 +98,118 @@ function calculateWordScore(word: string): number {
   else if (length === 6) score = 3;
   else if (length === 7) score = 5;
   else score = 11; // 8 or more letters
-  
+
   // Add bonus for rare letters
-  if (word.includes('q')) score += 2;
-  if (word.includes('z')) score += 3;
-  if (word.includes('x')) score += 2;
-  if (word.includes('j')) score += 2;
-  if (word.includes('k')) score += 1;
-  
+  if (word.includes("q")) score += 2;
+  if (word.includes("z")) score += 3;
+  if (word.includes("x")) score += 2;
+  if (word.includes("j")) score += 2;
+  if (word.includes("k")) score += 1;
+
   return score;
 }
 
 // Game Reducer
 /* eslint-disable react-refresh/only-export-components */
-export const gameReducer = (state: GameState, action: GameAction): GameState => {
+export const gameReducer = (
+  state: GameState,
+  action: GameAction
+): GameState => {
   switch (action.type) {
-    case 'SET_BOARD':
+    case "SET_BOARD":
       return {
         ...state,
         board: action.payload.board,
       };
-    case 'START_GAME':
+    case "START_GAME":
       return {
         ...state,
-        gameStatus: 'active',
+        gameStatus: "active",
         timeRemaining: action.payload.timerDuration,
         boardSize: action.payload.boardSize,
         difficulty: action.payload.difficulty,
         score: 0,
         foundWords: [],
         selectedPath: [],
-        currentWord: '',
+        currentWord: "",
       };
-    
-    case 'PAUSE_GAME':
-      if (state.gameStatus !== 'active') return state;
+
+    case "PAUSE_GAME":
+      if (state.gameStatus !== "active") return state;
       return {
         ...state,
-        gameStatus: 'paused',
+        gameStatus: "paused",
       };
-    
-    case 'RESUME_GAME':
-      if (state.gameStatus !== 'paused') return state;
+
+    case "RESUME_GAME":
+      if (state.gameStatus !== "paused") return state;
       return {
         ...state,
-        gameStatus: 'active',
+        gameStatus: "active",
       };
-    
-    case 'END_GAME':
+
+    case "END_GAME":
       return {
         ...state,
-        gameStatus: 'finished',
+        gameStatus: "finished",
       };
-    
-    case 'RESET_GAME':
+
+    case "RESET_GAME":
       return {
         ...state,
-        gameStatus: 'ready',
+        gameStatus: "ready",
         score: 0,
         foundWords: [],
         selectedPath: [],
-        currentWord: '',
+        currentWord: "",
       };
-    
-    case 'SELECT_LETTER': {
-      if (state.gameStatus !== 'active') return state;
-      
+
+    case "SELECT_LETTER": {
+      if (state.gameStatus !== "active") return state;
+
       const { position } = action.payload;
       const { row, col } = position;
-      
+
       // Check if the letter is already selected
-      if (state.selectedPath.some(pos => pos.row === row && pos.col === col)) {
+      if (
+        state.selectedPath.some((pos) => pos.row === row && pos.col === col)
+      ) {
         return state;
       }
-      
+
       // Check if this is the first letter or if it's adjacent to the last selected letter
       const isFirstLetter = state.selectedPath.length === 0;
-      const isAdjacent = isFirstLetter ? true : isAdjacentToLastSelected(position, state.selectedPath[state.selectedPath.length - 1]);
-      
+      const isAdjacent = isFirstLetter
+        ? true
+        : isAdjacentToLastSelected(
+            position,
+            state.selectedPath[state.selectedPath.length - 1]
+          );
+
       if (!isAdjacent) return state;
-      
+
       // Get the letter at this position
       let letter = state.board[row][col].char;
-      
-      // Handle special case for Q/q (add 'u' for scoring and display purposes)
-      if (letter.toLowerCase() === 'q') {
-        letter = 'Q';
+
+      // Handle special case for Q/q/Qu (add 'u' for scoring and display purposes)
+      if (letter.toLowerCase() === "q" || letter === "Qu") {
+        letter = "QU";
       }
-      
+
       // Update board to mark this letter as selected
-      const updatedBoard = state.board.map((rowLetters, r) => 
+      const updatedBoard = state.board.map((rowLetters, r) =>
         rowLetters.map((letterObj, c) => {
           if (r === row && c === col) {
             return {
               ...letterObj,
               isSelected: true,
-              isValidInPath: true
+              isValidInPath: true,
             };
           }
           return letterObj;
         })
       );
-      
+
       return {
         ...state,
         board: updatedBoard,
@@ -197,36 +217,36 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         currentWord: state.currentWord + letter,
       };
     }
-    
-    case 'DESELECT_LETTER': {
-      if (state.gameStatus !== 'active') return state;
-      
+
+    case "DESELECT_LETTER": {
+      if (state.gameStatus !== "active") return state;
+
       const { position } = action.payload;
       const { row, col } = position;
-      
+
       // Check if this is the last selected letter
       const lastIndex = state.selectedPath.length - 1;
       if (lastIndex < 0) return state;
-      
+
       const lastSelected = state.selectedPath[lastIndex];
       if (lastSelected.row !== row || lastSelected.col !== col) {
         return state;
       }
-      
+
       // Update board to mark this letter as not selected
-      const updatedBoard = state.board.map((rowLetters, r) => 
+      const updatedBoard = state.board.map((rowLetters, r) =>
         rowLetters.map((letterObj, c) => {
           if (r === row && c === col) {
             return {
               ...letterObj,
               isSelected: false,
-              isValidInPath: false
+              isValidInPath: false,
             };
           }
           return letterObj;
         })
       );
-      
+
       return {
         ...state,
         board: updatedBoard,
@@ -234,73 +254,73 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         currentWord: state.currentWord.slice(0, -1),
       };
     }
-    
-    case 'CLEAR_SELECTION': {
+
+    case "CLEAR_SELECTION": {
       // Reset all board cells to not selected
-      const updatedBoard = state.board.map(rowLetters => 
-        rowLetters.map(letterObj => ({
+      const updatedBoard = state.board.map((rowLetters) =>
+        rowLetters.map((letterObj) => ({
           ...letterObj,
           isSelected: false,
-          isValidInPath: false
+          isValidInPath: false,
         }))
       );
-      
+
       return {
         ...state,
         board: updatedBoard,
         selectedPath: [],
-        currentWord: '',
+        currentWord: "",
       };
     }
-    
-    case 'SUBMIT_WORD': {
-      if (state.gameStatus !== 'active' || state.currentWord.length < 3) {
+
+    case "SUBMIT_WORD": {
+      if (state.gameStatus !== "active" || state.currentWord.length < 3) {
         return {
           ...state,
           selectedPath: [],
-          currentWord: '',
+          currentWord: "",
         };
       }
-      
+
       const word = state.currentWord.toLowerCase();
-      
+
       // Check if the word is valid using our validator
       if (!isValidWord(word)) {
         console.log(`Word not in dictionary: ${word}`);
         return {
           ...state,
           selectedPath: [],
-          currentWord: '',
-          board: state.board.map(rowLetters => 
-            rowLetters.map(letterObj => ({
+          currentWord: "",
+          board: state.board.map((rowLetters) =>
+            rowLetters.map((letterObj) => ({
               ...letterObj,
               isSelected: false,
-              isValidInPath: false
+              isValidInPath: false,
             }))
           ),
         };
       }
-      
+
       // Check if the word has already been found
-      if (state.foundWords.some(w => w.text === word)) {
+      if (state.foundWords.some((w) => w.text === word)) {
         console.log(`Word already found: ${word}`);
         return {
           ...state,
           selectedPath: [],
-          currentWord: '',
-          board: state.board.map(rowLetters => 
-            rowLetters.map(letterObj => ({
+          currentWord: "",
+          board: state.board.map((rowLetters) =>
+            rowLetters.map((letterObj) => ({
               ...letterObj,
               isSelected: false,
-              isValidInPath: false
+              isValidInPath: false,
             }))
           ),
         };
       }
-      
+
       // Calculate word score
       const score = calculateWordScore(word);
-      
+
       // Add word to found words
       const newWord: Word = {
         text: word,
@@ -308,98 +328,98 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
         score,
         timestamp: Date.now(),
       };
-      
+
       return {
         ...state,
         score: state.score + score,
         foundWords: [...state.foundWords, newWord],
         selectedPath: [],
-        currentWord: '',
-        board: state.board.map(rowLetters => 
-          rowLetters.map(letterObj => ({
+        currentWord: "",
+        board: state.board.map((rowLetters) =>
+          rowLetters.map((letterObj) => ({
             ...letterObj,
             isSelected: false,
-            isValidInPath: false
+            isValidInPath: false,
           }))
         ),
       };
     }
-    
-    case 'SET_TIMER':
+
+    case "SET_TIMER":
       return {
         ...state,
         timeRemaining: action.payload.timeRemaining,
       };
-    
-    case 'TICK_TIMER': {
-      if (state.gameStatus !== 'active' || state.timeRemaining <= 0) {
-        if (state.timeRemaining <= 0 && state.gameStatus === 'active') {
+
+    case "TICK_TIMER": {
+      if (state.gameStatus !== "active" || state.timeRemaining <= 0) {
+        if (state.timeRemaining <= 0 && state.gameStatus === "active") {
           return {
             ...state,
             timeRemaining: 0,
-            gameStatus: 'finished'
+            gameStatus: "finished",
           };
         }
         return state;
       }
-      
+
       const newTime = state.timeRemaining - 1;
-      const newStatus = newTime <= 0 ? 'finished' : state.gameStatus;
-      
+      const newStatus = newTime <= 0 ? "finished" : state.gameStatus;
+
       return {
         ...state,
         timeRemaining: newTime,
         gameStatus: newStatus,
       };
     }
-    
-    case 'SET_LANGUAGE':
+
+    case "SET_LANGUAGE":
       return {
         ...state,
         language: action.payload.language,
       };
-    
-    case 'SET_DICTIONARY':
+
+    case "SET_DICTIONARY":
       return {
         ...state,
         dictionary: action.payload.dictionary,
       };
-    
-    case 'SET_DIFFICULTY':
+
+    case "SET_DIFFICULTY":
       return {
         ...state,
         difficulty: action.payload.difficulty,
       };
-    
-    case 'SET_BOARD_SIZE':
+
+    case "SET_BOARD_SIZE":
       return {
         ...state,
         boardSize: action.payload.boardSize,
       };
-    
+
     default:
       return state;
   }
 };
 
 // Import the dictionary validator
-import { loadDictionary, isValidWord } from '../utils/dictionaryValidator';
+import { loadDictionary, isValidWord } from "../utils/dictionaryValidator";
 
 // Import the generateBoard function
-import { generateBoard } from '../utils/boardGenerator';
+import { generateBoard } from "../utils/boardGenerator";
 
 // Initial empty game state
 const initialGameState: GameState = {
   board: [],
   selectedPath: [],
-  currentWord: '',
+  currentWord: "",
   foundWords: [],
   score: 0,
   timeRemaining: 180, // 3 minutes default
-  gameStatus: 'ready',
-  difficulty: 'medium',
+  gameStatus: "ready",
+  difficulty: "medium",
   boardSize: 4,
-  language: 'english',
+  language: "english",
   dictionary: new Set<string>(),
 };
 
@@ -407,7 +427,11 @@ const initialGameState: GameState = {
 interface GameContextType {
   state: GameState;
   dispatch: React.Dispatch<GameAction>;
-  startGame: (boardSize: number, difficulty: Difficulty, timerDuration: number) => void;
+  startGame: (
+    boardSize: number,
+    difficulty: Difficulty,
+    timerDuration: number
+  ) => void;
   pauseGame: () => void;
   resumeGame: () => void;
   endGame: () => void;
@@ -434,70 +458,79 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   useEffect(() => {
     // Dictionary is now loaded directly from the validator module
     // No need to dispatch a SET_DICTIONARY action
-    loadDictionary().catch(error => {
-      console.error('Failed to load dictionary:', error);
+    loadDictionary().catch((error) => {
+      console.error("Failed to load dictionary:", error);
     });
   }, []);
 
   // Game timer effect
   useEffect(() => {
     let timerId: number | undefined;
-    
-    if (state.gameStatus === 'active') {
+
+    if (state.gameStatus === "active") {
       timerId = window.setInterval(() => {
-        dispatch({ type: 'TICK_TIMER' });
+        dispatch({ type: "TICK_TIMER" });
       }, 1000);
     }
-    
+
     return () => {
       if (timerId) clearInterval(timerId);
     };
   }, [state.gameStatus]);
 
   // Game controller methods
-  const startGame = (boardSize: number, difficulty: Difficulty, timerDuration: number) => {
+  const startGame = (
+    boardSize: number,
+    difficulty: Difficulty,
+    timerDuration: number
+  ) => {
     // First generate the board
     const newBoard = generateBoard(boardSize, difficulty);
-    
+
     // Start the game with the given settings
     // Add debug logging to see if difficulty is being passed correctly
-    console.log(`Starting game with difficulty: ${difficulty}, board size: ${boardSize}`);
-    
-    dispatch({ type: 'START_GAME', payload: { boardSize, difficulty, timerDuration } });
-    
+    console.log(
+      `Starting game with difficulty: ${difficulty}, board size: ${boardSize}`
+    );
+
+    dispatch({
+      type: "START_GAME",
+      payload: { boardSize, difficulty, timerDuration },
+    });
+
     // Then set the board
-    dispatch({ 
-      type: 'SET_BOARD', 
-      payload: { board: newBoard }
+    dispatch({
+      type: "SET_BOARD",
+      payload: { board: newBoard },
     });
   };
 
-  const pauseGame = () => dispatch({ type: 'PAUSE_GAME' });
-  const resumeGame = () => dispatch({ type: 'RESUME_GAME' });
-  const endGame = () => dispatch({ type: 'END_GAME' });
-  const resetGame = () => dispatch({ type: 'RESET_GAME' });
-  
+  const pauseGame = () => dispatch({ type: "PAUSE_GAME" });
+  const resumeGame = () => dispatch({ type: "RESUME_GAME" });
+  const endGame = () => dispatch({ type: "END_GAME" });
+  const resetGame = () => dispatch({ type: "RESET_GAME" });
+
   const selectLetter = (position: Position) => {
-    dispatch({ type: 'SELECT_LETTER', payload: { position } });
+    dispatch({ type: "SELECT_LETTER", payload: { position } });
   };
-  
+
   const deselectLetter = (position: Position) => {
-    dispatch({ type: 'DESELECT_LETTER', payload: { position } });
+    dispatch({ type: "DESELECT_LETTER", payload: { position } });
   };
-  
-  const clearSelection = () => dispatch({ type: 'CLEAR_SELECTION' });
-  const submitWord = () => dispatch({ type: 'SUBMIT_WORD' });
-  
+
+  const clearSelection = () => dispatch({ type: "CLEAR_SELECTION" });
+  const submitWord = () => dispatch({ type: "SUBMIT_WORD" });
+
   const setLanguage = (language: string) => {
-    dispatch({ type: 'SET_LANGUAGE', payload: { language } });
+    dispatch({ type: "SET_LANGUAGE", payload: { language } });
   };
-  
+
   const setDifficulty = (difficulty: Difficulty) => {
-    dispatch({ type: 'SET_DIFFICULTY', payload: { difficulty } });
+    dispatch({ type: "SET_DIFFICULTY", payload: { difficulty } });
   };
-  
+
   const setBoardSize = (boardSize: number) => {
-    dispatch({ type: 'SET_BOARD_SIZE', payload: { boardSize } });
+    dispatch({ type: "SET_BOARD_SIZE", payload: { boardSize } });
   };
 
   const value = {
@@ -524,7 +557,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 export const useGame = () => {
   const context = useContext(GameContext);
   if (context === undefined) {
-    throw new Error('useGame must be used within a GameProvider');
+    throw new Error("useGame must be used within a GameProvider");
   }
   return context;
 };

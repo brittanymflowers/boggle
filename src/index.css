@@ -29,3 +29,33 @@ body {
     background-color: #ffffff;
   }
 }
+
+/* Special styling for Qu tiles */
+.special-qu {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: baseline;
+  padding: 0;
+  line-height: 0.9;
+}
+
+/* Adjust Qu size for larger board sizes */
+@media (max-width: 640px) {
+  .special-qu span:first-child {
+    font-size: 42px !important;
+  }
+  .special-qu span:last-child {
+    font-size: 32px !important;
+  }
+}
+
+/* Special case for extra large boards (6x6) */
+@media (min-width: 641px) {
+  .board-size-6 .special-qu span:first-child {
+    font-size: 38px !important;
+  }
+  .board-size-6 .special-qu span:last-child {
+    font-size: 28px !important;
+  }
+}

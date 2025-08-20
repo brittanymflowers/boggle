@@ -23,7 +23,7 @@ const standardDice = [
   ["L", "U", "P", "E", "T", "S"],
   ["A", "C", "I", "T", "O", "A"],
   ["Y", "L", "G", "K", "U", "E"],
-  ["Q", "B", "M", "J", "O", "A"], // Changed Qu to Q (we'll handle the U in the UI)
+  ["QU", "B", "M", "J", "O", "A"], // Changed Qu to Q (we'll handle the U in the UI)
   ["E", "H", "I", "S", "P", "N"],
   ["V", "E", "T", "I", "G", "N"],
   ["B", "A", "L", "I", "Y", "T"],
@@ -243,11 +243,11 @@ export function getPositionFromCoordinates(
 ): Position {
   // Account for the gap between cells (8px as set in the CSS)
   const GAP_SIZE = 8;
-  
+
   // Calculate row and column accounting for gaps
   const row = Math.floor(y / (cellSize + GAP_SIZE));
   const col = Math.floor(x / (cellSize + GAP_SIZE));
-  
+
   return { row, col };
 }
 
