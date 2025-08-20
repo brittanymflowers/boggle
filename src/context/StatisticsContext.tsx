@@ -9,6 +9,12 @@ export interface GameSummary {
   duration: number;
   boardSize: number;
   difficulty: string;
+  // Added these fields for better statistics tracking
+  longestWord?: string;
+  mostValuableWord?: {
+    word: string;
+    score: number;
+  };
 }
 
 export interface GameStatistics {
@@ -63,11 +69,13 @@ const loadSavedStatistics = (): GameStatistics => {
   try {
     const savedStats = localStorage.getItem('boggleStatistics');
     if (savedStats) {
+      console.log('Loaded statistics from localStorage:', savedStats);
       return JSON.parse(savedStats);
     }
   } catch (error) {
     console.error('Error loading statistics from localStorage', error);
   }
+  console.log('Using initial statistics');
   return initialStatistics;
 };
 
@@ -98,13 +106,24 @@ const statisticsReducer = (
       const recentGames = [gameSummary, ...state.statistics.recentGames].slice(0, 10); // Keep only last 10 games
       
       // Update statistics
+      console.log('Recording game - current games played:', state.statistics.gamesPlayed);
       const gamesPlayed = state.statistics.gamesPlayed + 1;
+      console.log('New games played count:', gamesPlayed);
       const totalScore = state.statistics.totalScore + gameSummary.score;
       const highestScore = Math.max(state.statistics.highestScore, gameSummary.score);
       const averageScore = totalScore / gamesPlayed;
       
-      // Longest word and most valuable word would be calculated when recording the game
-      // and passed in the payload, but we're simplifying here
+      // Calculate longest word
+      let longestWord = state.statistics.longestWord || '';
+      if (gameSummary.longestWord && gameSummary.longestWord.length > longestWord.length) {
+        longestWord = gameSummary.longestWord;
+      }
+      
+      // Calculate most valuable word
+      let mostValuableWord = state.statistics.mostValuableWord;
+      if (gameSummary.mostValuableWord && gameSummary.mostValuableWord.score > mostValuableWord.score) {
+        mostValuableWord = gameSummary.mostValuableWord;
+      }
       
       return {
         ...state,
@@ -114,6 +133,8 @@ const statisticsReducer = (
           totalScore,
           highestScore,
           averageScore,
+          longestWord,
+          mostValuableWord,
           mostWordsInGame: Math.max(state.statistics.mostWordsInGame, gameSummary.wordCount),
           recentGames,
         },
@@ -214,8 +235,13 @@ export const StatisticsProvider = ({ children }: StatisticsProviderProps) => {
     boardSize: number,
     difficulty: string
   ) => {
+    // Generate a unique ID for this game
+    const gameId = uuidv4();
+    
+    console.log(`[Statistics] Recording game ${gameId} - Current games played: ${statistics.gamesPlayed}`);
+    
     const gameSummary: GameSummary = {
-      id: uuidv4(),
+      id: gameId,
       date: new Date().toISOString(),
       score,
       wordCount,
@@ -224,7 +250,26 @@ export const StatisticsProvider = ({ children }: StatisticsProviderProps) => {
       difficulty,
     };
     
-    dispatch({ type: 'RECORD_GAME', payload: gameSummary });
+    // When recording a game, also include the longest word and most valuable word
+    // in the payload for the reducer to handle
+    dispatch({
+      type: 'RECORD_GAME',
+      payload: {
+        ...gameSummary,
+        longestWord,
+        mostValuableWord,
+      }
+    });
+    
+    console.log(`[Statistics] Game ${gameId} recorded - New games played: ${statistics.gamesPlayed + 1}`, {
+      score,
+      wordCount,
+      longestWord,
+      mostValuableWord,
+      duration,
+      boardSize,
+      difficulty
+    });
   };
 
   const clearStatistics = () => {

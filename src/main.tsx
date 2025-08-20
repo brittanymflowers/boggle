@@ -11,11 +11,11 @@ try {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <PreferencesProvider>
-        <GameProvider>
-          <StatisticsProvider>
+        <StatisticsProvider>
+          <GameProvider>
             <App />
-          </StatisticsProvider>
-        </GameProvider>
+          </GameProvider>
+        </StatisticsProvider>
       </PreferencesProvider>
     </StrictMode>
   );

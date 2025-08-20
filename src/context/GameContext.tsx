@@ -1,4 +1,5 @@
-import { createContext, useContext, useReducer, useEffect } from "react";
+import { createContext, useContext, useReducer, useEffect, useRef } from "react";
+import { useStatistics } from "./StatisticsContext";
 import type { ReactNode } from "react";
 
 // Define game types directly in this file
@@ -418,6 +419,43 @@ import { loadDictionary, isValidWord } from "../utils/dictionaryValidator";
 // Import the generateBoard function
 import { generateBoard } from "../utils/boardGenerator";
 
+// Helper function to calculate game statistics
+const calculateGameStatistics = (state: GameState) => {
+  let longestWord = '';
+  let mostValuableWord = { word: '', score: 0 };
+  
+  // Calculate the longest word and most valuable word
+  state.foundWords.forEach(word => {
+    // Update longest word if this word is longer
+    if (word.text.length > longestWord.length) {
+      longestWord = word.text;
+    }
+    
+    // Update most valuable word if this word has a higher score
+    if (word.score > mostValuableWord.score) {
+      mostValuableWord = {
+        word: word.text,
+        score: word.score
+      };
+    }
+  });
+  
+  // Get the initial timer duration - need to figure out from context or use a default
+  // For now we'll use a default of 3 minutes (180 seconds) if we can't determine it
+  const initialDuration = 180; // Default to 3 minutes
+  const elapsedSeconds = initialDuration - state.timeRemaining;
+  
+  return {
+    score: state.score,
+    wordCount: state.foundWords.length,
+    longestWord,
+    mostValuableWord,
+    duration: elapsedSeconds, // Now using elapsed time instead of remaining time
+    boardSize: state.boardSize,
+    difficulty: state.difficulty
+  };
+};
+
 // Initial empty game state
 const initialGameState: GameState = {
   board: [],
@@ -463,6 +501,7 @@ interface GameProviderProps {
 
 export const GameProvider = ({ children }: GameProviderProps) => {
   const [state, dispatch] = useReducer(gameReducer, initialGameState);
+  const { recordGame, addLeaderboardEntry } = useStatistics();
 
   // Load dictionary on mount
   useEffect(() => {
@@ -487,6 +526,58 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       if (timerId) clearInterval(timerId);
     };
   }, [state.gameStatus]);
+  
+  // Create a ref outside the effect to persist between renders
+  const gameFinishedRef = useRef(false);
+  
+  // Effect to reset gameFinishedRef when game status changes to "active"
+  useEffect(() => {
+    if (state.gameStatus === "active") {
+      // Reset the ref when a new game starts
+      gameFinishedRef.current = false;
+      console.log('Game status changed to active, reset gameFinishedRef');
+    }
+  }, [state.gameStatus]);
+  
+  // Effect to record statistics when game status changes to "finished"
+  useEffect(() => {
+    console.log("Game status changed to:", state.gameStatus);
+    
+    // Only run when game status changes to "finished" and there are words found
+    // AND we haven't already recorded statistics for this game
+    if (state.gameStatus === "finished" && state.foundWords.length > 0 && !gameFinishedRef.current) {
+      // Mark that we've recorded statistics for this game
+      gameFinishedRef.current = true;
+      
+      // Calculate game statistics
+      const gameStats = calculateGameStatistics(state);
+      console.log('Recording game statistics:', gameStats);
+      
+      // Record the game in statistics
+      recordGame(
+        gameStats.score,
+        gameStats.wordCount,
+        gameStats.longestWord,
+        gameStats.mostValuableWord,
+        gameStats.duration,
+        gameStats.boardSize,
+        gameStats.difficulty
+      );
+      
+      // Also add an entry to the leaderboard if score is greater than 0
+      if (gameStats.score > 0) {
+        addLeaderboardEntry(
+          gameStats.score,
+          gameStats.wordCount,
+          gameStats.longestWord,
+          gameStats.boardSize,
+          gameStats.difficulty
+        );
+      }
+      
+      console.log('Game finished - statistics recorded');
+    }
+  }, [state, recordGame, addLeaderboardEntry]);
 
   // Game controller methods
   const startGame = (
@@ -517,8 +608,30 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
   const pauseGame = () => dispatch({ type: "PAUSE_GAME" });
   const resumeGame = () => dispatch({ type: "RESUME_GAME" });
-  const endGame = () => dispatch({ type: "END_GAME" });
-  const resetGame = () => dispatch({ type: "RESET_GAME" });
+  // Modified to end the game without recording stats (stats will be recorded via the useEffect)
+  const endGame = () => {
+    // Just dispatch the END_GAME action - the statistics will be recorded by the useEffect
+    dispatch({ type: "END_GAME" });
+  };
+  // Modified to end active games and then reset without duplicating statistics recording
+  const resetGame = () => {
+    // If the game is active or paused, first end it (which will transition to finished)
+    // This will trigger the useEffect that records statistics
+    if (state.gameStatus === 'active' || state.gameStatus === 'paused') {
+      dispatch({ type: "END_GAME" });
+      // Then after a short delay, reset the game
+      setTimeout(() => {
+        dispatch({ type: "RESET_GAME" });
+        // Reset the gameFinishedRef to allow a new game to record stats
+        gameFinishedRef.current = false;
+      }, 100);
+    } else {
+      // If not active/paused, just reset directly
+      dispatch({ type: "RESET_GAME" });
+      // Reset the gameFinishedRef to allow a new game to record stats
+      gameFinishedRef.current = false;
+    }
+  };
 
   const selectLetter = (position: Position) => {
     dispatch({ type: "SELECT_LETTER", payload: { position } });
