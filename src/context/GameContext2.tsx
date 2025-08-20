@@ -474,6 +474,9 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     const newBoard = generateBoard(boardSize, difficulty);
     
     // Start the game with the given settings
+    // Add debug logging to see if difficulty is being passed correctly
+    console.log(`Starting game with difficulty: ${difficulty}, board size: ${boardSize}`);
+    
     dispatch({ type: 'START_GAME', payload: { boardSize, difficulty, timerDuration } });
     
     // Then set the board
