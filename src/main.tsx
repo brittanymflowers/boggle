@@ -1,14 +1,14 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import './index.css';
-import App from './App';
-import { PreferencesProvider } from './context/PreferencesContext';
-import { GameProvider } from './context/GameContext2';
-import { StatisticsProvider } from './context/StatisticsContext';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App";
+import { PreferencesProvider } from "./context/PreferencesContext";
+import { GameProvider } from "./context/GameContext";
+import { StatisticsProvider } from "./context/StatisticsContext";
 
-console.log('Starting to render app with all context providers');
+console.log("Starting to render app with all context providers");
 try {
-  createRoot(document.getElementById('root')!).render(
+  createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <PreferencesProvider>
         <GameProvider>
@@ -19,7 +19,7 @@ try {
       </PreferencesProvider>
     </StrictMode>
   );
-  console.log('App rendered successfully');
+  console.log("App rendered successfully");
 } catch (error) {
-  console.error('Error rendering app:', error);
+  console.error("Error rendering app:", error);
 }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useGame } from "../../../context/GameContext2";
+import { useGame } from "../../../context/GameContext";
 import { usePreferences } from "../../../context/PreferencesContext";
 // Define Difficulty type directly
 type Difficulty = "easy" | "medium" | "hard";
