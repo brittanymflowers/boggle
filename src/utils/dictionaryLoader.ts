@@ -1,92 +1,7 @@
 // Dictionary cache to avoid reloading
 const dictionaryCache: Record<string, Set<string>> = {};
 
-// English common words (simplified version for demo)
-const commonEnglishWords = [
-  'the', 'and', 'that', 'have', 'for', 'not', 'with', 'you', 'this', 'but',
-  'his', 'from', 'they', 'say', 'her', 'she', 'will', 'one', 'all', 'would',
-  'there', 'their', 'what', 'out', 'about', 'who', 'get', 'which', 'when', 'make',
-  'can', 'like', 'time', 'just', 'him', 'know', 'take', 'people', 'into', 'year',
-  'your', 'good', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now',
-  'look', 'only', 'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use',
-  'two', 'how', 'our', 'work', 'first', 'well', 'way', 'even', 'new', 'want',
-  'because', 'any', 'these', 'give', 'day', 'most', 'cat', 'dog', 'man', 'car',
-  'house', 'tree', 'bird', 'word', 'play', 'game', 'ball', 'book', 'food', 'run',
-  'jump', 'talk', 'walk', 'love', 'hate', 'feel', 'city', 'blue', 'red', 'green',
-  'yellow', 'black', 'white', 'big', 'small', 'fast', 'slow', 'high', 'low', 'old',
-  'young', 'happy', 'sad', 'hot', 'cold', 'easy', 'hard', 'early', 'late', 'long',
-  'short', 'right', 'wrong', 'full', 'empty', 'rich', 'poor', 'dark', 'light', 'sweet',
-  'sour', 'clean', 'dirty', 'dry', 'wet', 'soft', 'hard', 'cheap', 'dear', 'thin',
-  'thick', 'far', 'near', 'deep', 'flat', 'loud', 'quiet', 'quick', 'slow', 'sharp',
-  'board', 'piece', 'king', 'queen', 'rock', 'paper', 'night', 'day', 'rain', 'snow',
-  'wind', 'cloud', 'earth', 'fire', 'water', 'dust', 'smoke', 'fog', 'ice', 'steam',
-  'drink', 'milk', 'juice', 'tea', 'coffee', 'wine', 'beer', 'bread', 'cake', 'cheese',
-  'meat', 'fish', 'rice', 'salt', 'sugar', 'fruit', 'apple', 'pear', 'orange', 'lemon',
-  'table', 'chair', 'door', 'window', 'floor', 'wall', 'roof', 'bed', 'desk', 'lamp',
-  'phone', 'radio', 'clock', 'watch', 'ring', 'hat', 'coat', 'shoe', 'boot', 'sock',
-  'head', 'eye', 'ear', 'nose', 'mouth', 'hand', 'foot', 'arm', 'leg', 'bone',
-  'brain', 'heart', 'blood', 'skin', 'hair', 'road', 'path', 'bridge', 'river', 'lake',
-];
-
-// Spanish common words (simplified version for demo)
-const commonSpanishWords = [
-  'el', 'la', 'de', 'que', 'y', 'a', 'en', 'un', 'ser', 'se',
-  'no', 'haber', 'por', 'con', 'su', 'para', 'como', 'estar', 'tener', 'le',
-  'lo', 'todo', 'pero', 'más', 'hacer', 'o', 'poder', 'decir', 'este', 'ir',
-  'otro', 'ese', 'si', 'me', 'ya', 'ver', 'porque', 'dar', 'cuando', 'él',
-  'muy', 'sin', 'vez', 'mucho', 'saber', 'qué', 'sobre', 'mi', 'alguno', 'mismo',
-  'yo', 'también', 'hasta', 'año', 'dos', 'querer', 'entre', 'así', 'primero', 'desde',
-  'grande', 'eso', 'ni', 'nos', 'llegar', 'pasar', 'tiempo', 'ella', 'día', 'uno',
-  'bien', 'poco', 'deber', 'entonces', 'poner', 'cosa', 'tanto', 'hombre', 'parecer', 'nuestro',
-  'casa', 'perro', 'gato', 'libro', 'agua', 'vida', 'sol', 'luna', 'mar', 'cielo',
-  'tierra', 'fuego', 'aire', 'rojo', 'azul', 'verde', 'negro', 'blanco', 'bueno', 'malo',
-];
-
-// French common words (simplified version for demo)
-const commonFrenchWords = [
-  'le', 'la', 'de', 'un', 'une', 'et', 'est', 'en', 'que', 'à',
-  'il', 'elle', 'je', 'tu', 'nous', 'vous', 'ils', 'elles', 'qui', 'ne',
-  'pas', 'ce', 'dans', 'du', 'pour', 'sur', 'au', 'avec', 'se', 'plus',
-  'par', 'mais', 'ou', 'où', 'si', 'leur', 'sont', 'mon', 'ton', 'son',
-  'me', 'te', 'lui', 'tout', 'voir', 'faire', 'dire', 'aller', 'venir', 'prendre',
-  'savoir', 'pouvoir', 'vouloir', 'aimer', 'jour', 'ans', 'temps', 'homme', 'femme', 'petit',
-  'grand', 'bien', 'mal', 'mer', 'terre', 'eau', 'feu', 'air', 'ciel', 'soleil',
-  'lune', 'étoile', 'arbre', 'fleur', 'ami', 'main', 'pied', 'tête', 'cœur', 'âme',
-  'chien', 'chat', 'maison', 'ville', 'rue', 'pays', 'monde', 'livre', 'mot', 'nom',
-  'bonjour', 'merci', 'oui', 'non', 'rouge', 'bleu', 'vert', 'noir', 'blanc', 'bon',
-];
-
-// Expanded English words for better gameplay
-const expandedEnglishWords = [
-  // Common short words suitable for Boggle
-  'act', 'add', 'age', 'ago', 'aid', 'aim', 'air', 'all', 'and', 'any', 'arm', 'art', 'ask', 'ate',
-  'bad', 'bag', 'ban', 'bar', 'bat', 'bay', 'bed', 'bee', 'beg', 'bet', 'bid', 'big', 'bit', 'boa', 'bob', 'bog', 'bow', 'box', 'boy', 'bud', 'bug', 'bum', 'bun', 'bus', 'but', 'buy',
-  'cab', 'can', 'cap', 'car', 'cat', 'cob', 'cod', 'cog', 'con', 'cop', 'cot', 'cow', 'cry', 'cub', 'cue', 'cup', 'cut',
-  'dad', 'dam', 'day', 'den', 'dew', 'did', 'die', 'dig', 'dim', 'dip', 'doe', 'dog', 'dot', 'dry', 'due', 'dug',
-  'ear', 'eat', 'ebb', 'egg', 'ego', 'elf', 'elk', 'elm', 'end', 'era', 'eve', 'eye',
-  'fad', 'fan', 'far', 'fat', 'fed', 'fee', 'few', 'fig', 'fin', 'fir', 'fit', 'fix', 'fly', 'foe', 'fog', 'for', 'fox', 'fry', 'fun', 'fur',
-  'gag', 'gap', 'gas', 'gel', 'gem', 'get', 'gig', 'gin', 'god', 'got', 'gum', 'gun', 'gut', 'guy', 'gym',
-  'had', 'hag', 'ham', 'has', 'hat', 'hay', 'hem', 'hen', 'her', 'hex', 'hey', 'hid', 'him', 'hip', 'his', 'hit', 'hog', 'hop', 'hot', 'how', 'hub', 'hue', 'hug', 'huh', 'hum', 'hut',
-  'ice', 'icy', 'ill', 'ink', 'inn', 'ion', 'its',
-  'jab', 'jam', 'jar', 'jaw', 'jay', 'jet', 'jew', 'job', 'jog', 'joy', 'jug',
-  'keg', 'key', 'kid', 'kin', 'kit',
-  'lab', 'lad', 'lag', 'lap', 'law', 'lay', 'led', 'leg', 'let', 'lid', 'lie', 'lip', 'lit', 'log', 'lot', 'low',
-  'mad', 'mag', 'man', 'map', 'mar', 'mat', 'may', 'men', 'met', 'mix', 'mob', 'mop', 'mud', 'mug', 'mum',
-  'nab', 'nag', 'nap', 'nay', 'net', 'new', 'nib', 'nil', 'nip', 'nit', 'nod', 'nor', 'not', 'now', 'nun', 'nut',
-  'oak', 'odd', 'off', 'oft', 'ohm', 'oil', 'old', 'one', 'orb', 'ore', 'our', 'out', 'owe', 'owl', 'own', 'ox',
-  'pad', 'pal', 'pan', 'pap', 'par', 'pat', 'paw', 'pay', 'pea', 'peg', 'pen', 'pep', 'per', 'pet', 'pew', 'pie', 'pig', 'pin', 'pip', 'pit', 'ply', 'pod', 'pop', 'pot', 'pow', 'pro', 'pry', 'pub', 'pug', 'pun', 'pup', 'put',
-  'quo',
-  'rag', 'rah', 'ram', 'ran', 'rap', 'rat', 'raw', 'ray', 'red', 'rib', 'rid', 'rig', 'rim', 'rip', 'rob', 'rod', 'roe', 'rot', 'row', 'rub', 'rue', 'rug', 'rum', 'run', 'rut',
-  'sad', 'sag', 'sal', 'sap', 'sat', 'saw', 'say', 'sea', 'see', 'set', 'sew', 'she', 'shy', 'sic', 'sig', 'sim', 'sin', 'sip', 'sir', 'sis', 'sit', 'six', 'ski', 'sky', 'sly', 'sob', 'sod', 'son', 'sow', 'soy', 'spa', 'spy', 'stir', 'sub', 'sue', 'sum', 'sun', 'sup',
-  'tab', 'tad', 'tag', 'tan', 'tap', 'tar', 'tat', 'tax', 'tea', 'tee', 'ten', 'the', 'thy', 'tic', 'tie', 'til', 'tin', 'tip', 'toe', 'tog', 'tom', 'ton', 'too', 'top', 'tow', 'toy', 'try', 'tub', 'tug', 'tut', 'tux',
-  'ugh',
-  'vat', 'vex', 'via', 'vie', 'vow',
-  'wad', 'wag', 'wan', 'war', 'was', 'wax', 'way', 'web', 'wed', 'wee', 'wet', 'who', 'why', 'wig', 'win', 'wit', 'woe', 'wok', 'won', 'woo', 'wow', 'wry', 'wye',
-  'yak', 'yam', 'yap', 'yaw', 'yay', 'yea', 'yen', 'yes', 'yet', 'yew', 'yip', 'you',
-  'zag', 'zap', 'zen', 'zig', 'zip', 'zit', 'zoo'
-];
-
-// Custom themed word lists (simplified for demo)
+// Theme-specific word lists
 const animalWords = [
   'dog', 'cat', 'bird', 'fish', 'lion', 'tiger', 'bear', 'wolf', 'fox', 'deer',
   'mouse', 'rat', 'frog', 'toad', 'snake', 'lizard', 'turtle', 'eagle', 'hawk', 'owl',
@@ -103,54 +18,61 @@ const foodWords = [
   'beer', 'wine', 'pizza', 'burger', 'fries', 'onion', 'garlic', 'carrot', 'potato', 'tomato',
 ];
 
-// Function to load the dictionary - using local word lists only for stability
+// Function to load the dictionary from the words_dictionary.json file
 export async function loadDictionary(language: string = 'english'): Promise<Set<string>> {
   // Check cache first
   if (dictionaryCache[language]) {
+    console.log(`Using cached dictionary for ${language}`);
     return dictionaryCache[language];
   }
   
-  let words: string[] = [];
-  
-  // Select word list based on language
-  switch (language.toLowerCase()) {
-    case 'english':
-      // Use expanded English word list
-      words = [
-        ...commonEnglishWords,
-        ...expandedEnglishWords
-      ];
-      break;
-    case 'spanish':
-      words = commonSpanishWords;
-      break;
-    case 'french':
-      words = commonFrenchWords;
-      break;
-    case 'animals':
-      words = animalWords;
-      break;
-    case 'food':
-      words = foodWords;
-      break;
-    default:
-      words = commonEnglishWords;
+  // Special cases for themed word lists
+  if (language === 'animals') {
+    const dictionary = new Set(animalWords);
+    dictionaryCache[language] = dictionary;
+    console.log(`Loaded ${dictionary.size} animal words`);
+    return dictionary;
   }
   
-  // Convert to a Set for faster lookups
-  const dictionary = new Set(words);
+  if (language === 'food') {
+    const dictionary = new Set(foodWords);
+    dictionaryCache[language] = dictionary;
+    console.log(`Loaded ${dictionary.size} food words`);
+    return dictionary;
+  }
   
-  // Cache for future use
-  dictionaryCache[language] = dictionary;
-  
-  console.log(`Loaded ${dictionary.size} words for ${language}`);
-  
-  return dictionary;
+  try {
+    console.log('Loading comprehensive English dictionary...');
+    const response = await fetch('/words_dictionary.json');
+    
+    if (!response.ok) {
+      throw new Error(`Failed to load dictionary: ${response.status}`);
+    }
+    
+    const wordData = await response.json();
+    const words = Object.keys(wordData)
+      .filter(word => word.length >= 3); // Only include words of 3+ letters for Boggle
+    
+    const dictionary = new Set(words);
+    
+    // Cache for future use
+    dictionaryCache['english'] = dictionary;
+    
+    console.log(`Loaded ${dictionary.size} words for comprehensive dictionary`);
+    
+    return dictionary;
+  } catch (error) {
+    console.error('Error loading dictionary:', error);
+    // Fallback to a minimal set of common words if dictionary fails to load
+    const fallbackWords = new Set(['cat', 'dog', 'run', 'the', 'and', 'but']);
+    console.warn('Using fallback dictionary due to loading error');
+    return fallbackWords;
+  }
 }
 
 // Function to get available dictionary options
 export function getAvailableDictionaries(): string[] {
-  return ['english', 'spanish', 'french', 'animals', 'food'];
+  return ['english', 'animals', 'food'];
 }
 
 // Simple function to check if a word is valid using our dictionary

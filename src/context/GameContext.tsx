@@ -264,8 +264,9 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       
       const word = state.currentWord.toLowerCase();
       
-      // Check if the word is in the dictionary
-      if (!state.dictionary.has(word)) {
+      // Check if the word is valid using our validator
+      if (!isValidWord(word)) {
+        console.log(`Word not in dictionary: ${word}`);
         return {
           ...state,
           selectedPath: [],
@@ -282,6 +283,7 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       
       // Check if the word has already been found
       if (state.foundWords.some(w => w.text === word)) {
+        console.log(`Word already found: ${word}`);
         return {
           ...state,
           selectedPath: [],
@@ -380,8 +382,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
   }
 };
 
-// Import the dictionary loader
-import { loadDictionary } from '../utils/dictionaryLoader';
+// Import the dictionary validator
+import { loadDictionary, isValidWord } from '../utils/dictionaryValidator';
 
 // Import the generateBoard function
 import { generateBoard } from '../utils/boardGenerator';
@@ -428,15 +430,14 @@ interface GameProviderProps {
 export const GameProvider = ({ children }: GameProviderProps) => {
   const [state, dispatch] = useReducer(gameReducer, initialGameState);
 
-  // Load dictionary on mount or when language changes
+  // Load dictionary on mount
   useEffect(() => {
-    const loadDict = async () => {
-      const dictionary = await loadDictionary(state.language);
-      dispatch({ type: 'SET_DICTIONARY', payload: { dictionary } });
-    };
-    
-    loadDict();
-  }, [state.language]);
+    // Dictionary is now loaded directly from the validator module
+    // No need to dispatch a SET_DICTIONARY action
+    loadDictionary().catch(error => {
+      console.error('Failed to load dictionary:', error);
+    });
+  }, []);
 
   // Game timer effect
   useEffect(() => {

@@ -234,14 +234,20 @@ export function getAdjacentPositions(
   return adjacentPositions;
 }
 
-// Function to get position from coordinates
+// Function to get position from coordinates - no longer needed for mouse movement
+// but kept for compatibility
 export function getPositionFromCoordinates(
   x: number,
   y: number,
   cellSize: number
 ): Position {
-  const row = Math.floor(y / cellSize);
-  const col = Math.floor(x / cellSize);
+  // Account for the gap between cells (8px as set in the CSS)
+  const GAP_SIZE = 8;
+  
+  // Calculate row and column accounting for gaps
+  const row = Math.floor(y / (cellSize + GAP_SIZE));
+  const col = Math.floor(x / (cellSize + GAP_SIZE));
+  
   return { row, col };
 }
 
