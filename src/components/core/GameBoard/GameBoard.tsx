@@ -13,7 +13,7 @@ interface GameBoardProps {
 }
 
 export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
-  const { state, selectLetter, clearSelection, submitWord, startGame } =
+  const { state, selectLetter, deselectLetter, clearSelection, submitWord, startGame } =
     useGame();
   const { preferences } = usePreferences();
 
@@ -217,12 +217,21 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
                   // Only proceed with selection if mouse is down
                   if (!isMouseDown || state.gameStatus !== "active") return;
                   
-                  // Don't allow selecting the same cell twice
-                  const isAlreadySelected = state.selectedPath.some(
-                    (p) => p.row === position.row && p.col === position.col
+                  // Check if this cell is already in the path
+                  const pathIndex = state.selectedPath.findIndex(
+                    p => p.row === position.row && p.col === position.col
                   );
                   
-                  if (isAlreadySelected) return;
+                  // Handle backtracking case - if we're entering a cell that's already selected
+                  if (pathIndex !== -1) {
+                    // Only deselect if we're going back to the second-to-last position (the one before the current last)
+                    if (pathIndex === state.selectedPath.length - 2) {
+                      console.log(`Going back to previous letter, deselecting last letter`);
+                      const lastPosition = state.selectedPath[state.selectedPath.length - 1];
+                      deselectLetter(lastPosition);
+                    }
+                    return;
+                  }
                   
                   // Get the last selected position from the path
                   const lastPosition = state.selectedPath[state.selectedPath.length - 1];

@@ -224,16 +224,17 @@ export const gameReducer = (
       const { position } = action.payload;
       const { row, col } = position;
 
-      // Check if this is the last selected letter
+      // Get the last selected letter's index
       const lastIndex = state.selectedPath.length - 1;
       if (lastIndex < 0) return state;
 
+      // Only allow deselection of the last letter in the path
       const lastSelected = state.selectedPath[lastIndex];
       if (lastSelected.row !== row || lastSelected.col !== col) {
         return state;
       }
 
-      // Update board to mark this letter as not selected
+      // Update the board to mark just this letter as not selected
       const updatedBoard = state.board.map((rowLetters, r) =>
         rowLetters.map((letterObj, c) => {
           if (r === row && c === col) {
@@ -246,12 +247,21 @@ export const gameReducer = (
           return letterObj;
         })
       );
-
+      
+      // Get the letter that is being deselected
+      const deselectedChar = state.board[row][col].char;
+      
+      // Special case for Qu tile (which counts as 2 characters in the word)
+      const charLength = (deselectedChar.toLowerCase() === 'q' || deselectedChar === 'Qu' || deselectedChar === 'QU') ? 2 : 1;
+      
+      // Remove the last character(s) from the current word
+      const newWord = state.currentWord.slice(0, -charLength);
+      
       return {
         ...state,
         board: updatedBoard,
         selectedPath: state.selectedPath.slice(0, -1),
-        currentWord: state.currentWord.slice(0, -1),
+        currentWord: newWord,
       };
     }
 
