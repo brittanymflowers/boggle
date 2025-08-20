@@ -167,7 +167,12 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
       if (!isAdjacent) return state;
       
       // Get the letter at this position
-      const letter = state.board[row][col].char;
+      let letter = state.board[row][col].char;
+      
+      // Handle special case for Q/q (add 'u' for scoring and display purposes)
+      if (letter.toLowerCase() === 'q') {
+        letter = 'Q';
+      }
       
       // Update board to mark this letter as selected
       const updatedBoard = state.board.map((rowLetters, r) => 

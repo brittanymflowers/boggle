@@ -23,7 +23,7 @@ const standardDice = [
   ['L', 'U', 'P', 'E', 'T', 'S'],
   ['A', 'C', 'I', 'T', 'O', 'A'],
   ['Y', 'L', 'G', 'K', 'U', 'E'],
-  ['Qu', 'B', 'M', 'J', 'O', 'A'],
+  ['Q', 'B', 'M', 'J', 'O', 'A'],  // Changed Qu to Q (we'll handle the U in the UI)
   ['E', 'H', 'I', 'S', 'P', 'N'],
   ['V', 'E', 'T', 'I', 'G', 'N'],
   ['B', 'A', 'L', 'I', 'Y', 'T'],

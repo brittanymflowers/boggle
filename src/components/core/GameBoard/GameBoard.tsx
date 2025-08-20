@@ -38,8 +38,15 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
       if (!boardRef.current) return;
       
       const boardWidth = boardRef.current.offsetWidth;
-      const newCellSize = Math.floor(boardWidth / state.boardSize) - 4; // 4px for margin
-      setCellSize(newCellSize);
+      // Calculate appropriate cell size based on board size
+      // Include gap in the calculation (8px between cells)
+      const gapSpace = (state.boardSize - 1) * 8;
+      const availableWidth = boardWidth - gapSpace;
+      const newCellSize = Math.floor(availableWidth / state.boardSize);
+      
+      // Set a reasonable minimum and maximum size
+      const constrainedSize = Math.min(Math.max(newCellSize, 50), 100);
+      setCellSize(constrainedSize);
     };
     
     handleResize();
@@ -148,23 +155,27 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
   // Get cell class based on its state
   const getCellClass = (row: number, col: number) => {
     const cell = state.board[row][col];
-    let baseClass = 'relative flex items-center justify-center font-bold rounded-md transition-all cursor-pointer select-none';
+    let baseClass = 'relative flex items-center justify-center font-black rounded-lg border border-gray-400 transition-all cursor-pointer select-none aspect-square';
     
-    // Apply dynamic sizing
-    baseClass += ` w-[${cellSize}px] h-[${cellSize}px] text-[${Math.floor(cellSize * 0.4)}px]`;
+    // Apply adaptive sizing based on cell size
+    baseClass += ` w-[${cellSize}px] h-[${cellSize}px]`;
+    
+    // Scale text size based on cell size but with a minimum
+    const textSize = Math.max(Math.floor(cellSize * 0.7), 36);
+    baseClass += ` text-[${textSize}px]`;
     
     // Apply colors based on state
     if (cell.isSelected) {
       if (preferences.colorBlindMode) {
-        baseClass += ' bg-yellow-700 text-white border-2 border-white';
+        baseClass += ' bg-yellow-500 text-black border-yellow-700 transform scale-105 shadow-lg';
       } else {
-        baseClass += ' bg-indigo-600 text-white transform scale-105 shadow-lg';
+        baseClass += ' bg-blue-400 text-blue-900 transform scale-105 shadow-lg';
       }
     } else {
       if (preferences.theme === 'dark') {
-        baseClass += ' bg-gray-700 text-white hover:bg-gray-600';
+        baseClass += ' bg-gray-200 text-blue-900 hover:bg-gray-300';
       } else {
-        baseClass += ' bg-indigo-100 text-indigo-900 hover:bg-indigo-200';
+        baseClass += ' bg-gray-100 text-blue-900 hover:bg-gray-200';
       }
     }
     
@@ -178,13 +189,13 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
 
   if (state.board.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-4 bg-gray-100 dark:bg-gray-800 rounded-xl">
-        <p className="text-gray-500 dark:text-gray-400 mb-4">Start a new game to generate a board</p>
+      <div className="flex flex-col items-center justify-center p-6 bg-blue-500 dark:bg-blue-600 rounded-xl border-4 border-yellow-400 shadow-lg">
+        <p className="text-white font-bold text-lg mb-6">Start a new game to generate a board</p>
         <button 
           onClick={handleStartTestGame}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+          className="px-6 py-3 bg-yellow-400 text-black font-black rounded-xl border-4 border-yellow-600 hover:bg-yellow-300 hover:border-yellow-500 text-lg shadow-md"
         >
-          Start Test Game
+          Start Game
         </button>
       </div>
     );
@@ -193,7 +204,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
   return (
     <div 
       ref={boardRef}
-      className="w-full max-w-lg mx-auto p-2 bg-gray-100 dark:bg-gray-800 rounded-xl shadow-md"
+      className="w-full max-w-lg mx-auto p-4 bg-blue-900 dark:bg-blue-800 rounded-lg border-2 border-blue-300 shadow-lg"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -203,10 +214,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
       onContextMenu={(e) => e.preventDefault()} // Prevent right-click menu
     >
       <div 
-        className="grid gap-1"
+        className="grid gap-2"
         style={{
           gridTemplateColumns: `repeat(${state.boardSize}, 1fr)`,
           gridTemplateRows: `repeat(${state.boardSize}, 1fr)`,
+          gap: '8px'
         }}
       >
         {state.board.map((row, rowIndex) =>
@@ -228,9 +240,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
                 }}
                 onTouchStart={() => handleMouseDown(position)}
               >
-                {cell.char}
+                <span className="text-[64px] leading-none">
+                  {cell.char === 'q' || cell.char === 'Q' ? 'Qu' : cell.char.toUpperCase()}
+                </span>
                 {cell.isSelected && (
-                  <span className="absolute top-1 right-1 text-xs bg-white text-indigo-900 rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute top-0.5 right-0.5 text-xs bg-white text-black font-bold rounded-full w-5 h-5 flex items-center justify-center border border-black">
                     {state.selectedPath.findIndex(
                       p => p.row === rowIndex && p.col === colIndex
                     ) + 1}
@@ -243,10 +257,10 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onWordSubmit }) => {
       </div>
       
       {state.currentWord.length > 0 && (
-        <div className="mt-4 p-2 bg-white dark:bg-gray-700 rounded-md text-center">
-          <p className="text-xl font-bold tracking-wide">
+        <div className="mt-4 p-3 bg-white dark:bg-gray-700 rounded-xl border-4 border-yellow-400 shadow-md text-center">
+          <p className="text-2xl font-black tracking-wide">
             {state.currentWord}
-            <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+            <span className="ml-2 text-sm font-bold text-gray-700 dark:text-gray-300">
               ({state.currentWord.length} letters)
             </span>
           </p>

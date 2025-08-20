@@ -1,75 +1,93 @@
-import React, { useState } from 'react';
-import { useGame } from '../../../context/GameContext2';
-import { usePreferences } from '../../../context/PreferencesContext';
+import React, { useState } from "react";
+import { useGame } from "../../../context/GameContext2";
+import { usePreferences } from "../../../context/PreferencesContext";
 // Define Difficulty type directly
-type Difficulty = 'easy' | 'medium' | 'hard';
-import { generateBoard } from '../../../utils/boardGenerator';
+type Difficulty = "easy" | "medium" | "hard";
+import { generateBoard } from "../../../utils/boardGenerator";
 
 interface GameControlsProps {
   className?: string;
 }
 
-export const GameControls: React.FC<GameControlsProps> = ({ className = '' }) => {
+export const GameControls: React.FC<GameControlsProps> = ({
+  className = "",
+}) => {
   const { state, startGame, pauseGame, resumeGame, resetGame } = useGame();
   const { preferences } = usePreferences();
-  
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(preferences.defaultDifficulty);
-  const [selectedBoardSize, setSelectedBoardSize] = useState<number>(preferences.defaultBoardSize);
-  const [selectedTimerDuration, setSelectedTimerDuration] = useState<number>(preferences.defaultTimerDuration);
+
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(
+    preferences.defaultDifficulty
+  );
+  const [selectedBoardSize, setSelectedBoardSize] = useState<number>(
+    preferences.defaultBoardSize
+  );
+  const [selectedTimerDuration, setSelectedTimerDuration] = useState<number>(
+    preferences.defaultTimerDuration
+  );
 
   // Handle game start
   const handleStartGame = () => {
-    if (state.gameStatus === 'ready' || state.gameStatus === 'finished') {
+    if (state.gameStatus === "ready" || state.gameStatus === "finished") {
       startGame(selectedBoardSize, selectedDifficulty, selectedTimerDuration);
     }
   };
 
   // Handle pause/resume toggle
   const handlePauseResumeToggle = () => {
-    if (state.gameStatus === 'active') {
+    if (state.gameStatus === "active") {
       pauseGame();
-    } else if (state.gameStatus === 'paused') {
+    } else if (state.gameStatus === "paused") {
       resumeGame();
     }
   };
 
   // Generate button class based on variant and state
-  const getButtonClass = (variant: 'primary' | 'secondary' | 'danger' = 'primary', disabled = false) => {
-    let baseClass = 'px-4 py-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
-    
+  const getButtonClass = (
+    variant: "primary" | "secondary" | "danger" = "primary",
+    disabled = false
+  ) => {
+    let baseClass =
+      "px-5 py-3 rounded-xl border-4 font-bold text-lg transition-all focus:outline-none shadow-md";
+
     if (disabled) {
-      return `${baseClass} bg-gray-300 text-gray-500 cursor-not-allowed`;
+      return `${baseClass} bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed`;
     }
-    
+
     switch (variant) {
-      case 'primary':
-        return `${baseClass} bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-indigo-500`;
-      case 'secondary':
-        return `${baseClass} bg-gray-200 hover:bg-gray-300 text-gray-800 focus:ring-gray-400`;
-      case 'danger':
-        return `${baseClass} bg-red-600 hover:bg-red-700 text-white focus:ring-red-500`;
+      case "primary":
+        return `${baseClass} bg-yellow-400 border-yellow-600 text-black hover:bg-yellow-300 hover:border-yellow-500`;
+      case "secondary":
+        return `${baseClass} bg-blue-300 border-blue-500 text-black hover:bg-blue-200 hover:border-blue-400`;
+      case "danger":
+        return `${baseClass} bg-red-400 border-red-600 text-black hover:bg-red-300 hover:border-red-500`;
     }
   };
 
   // Generate select class
   const getSelectClass = () => {
-    return 'mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm';
+    return "mt-2 block w-full px-4 py-3 bg-white dark:bg-gray-700 border-3 border-gray-400 dark:border-gray-600 rounded-xl shadow-md focus:outline-none focus:border-yellow-400 text-base font-medium";
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg p-4 shadow ${className}`}>
-      {(state.gameStatus === 'ready' || state.gameStatus === 'finished') && (
+    <div
+      className={`bg-blue-500 dark:bg-blue-600 border-4 border-yellow-400 rounded-xl p-5 shadow-lg ${className}`}
+    >
+      {(state.gameStatus === "ready" || state.gameStatus === "finished") && (
         <div className="mb-4">
-          <h2 className="text-lg font-bold mb-3 text-gray-800 dark:text-gray-200">Game Settings</h2>
-          
+          <h2 className="text-xl font-black mb-4 text-white dark:text-white">
+            Game Settings
+          </h2>
+
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-base font-bold text-white dark:text-white">
                 Difficulty
               </label>
               <select
                 value={selectedDifficulty}
-                onChange={(e) => setSelectedDifficulty(e.target.value as Difficulty)}
+                onChange={(e) =>
+                  setSelectedDifficulty(e.target.value as Difficulty)
+                }
                 className={getSelectClass()}
               >
                 <option value="easy">Easy</option>
@@ -77,9 +95,9 @@ export const GameControls: React.FC<GameControlsProps> = ({ className = '' }) =>
                 <option value="hard">Hard</option>
               </select>
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-base font-bold text-white dark:text-white">
                 Board Size
               </label>
               <select
@@ -92,14 +110,16 @@ export const GameControls: React.FC<GameControlsProps> = ({ className = '' }) =>
                 <option value="6">6x6 (Extra Large)</option>
               </select>
             </div>
-            
+
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label className="block text-base font-bold text-white dark:text-white">
                 Timer Duration
               </label>
               <select
                 value={selectedTimerDuration}
-                onChange={(e) => setSelectedTimerDuration(Number(e.target.value))}
+                onChange={(e) =>
+                  setSelectedTimerDuration(Number(e.target.value))
+                }
                 className={getSelectClass()}
               >
                 <option value="60">1 minute</option>
@@ -112,39 +132,36 @@ export const GameControls: React.FC<GameControlsProps> = ({ className = '' }) =>
           </div>
         </div>
       )}
-      
+
       <div className="flex flex-wrap gap-2">
-        {(state.gameStatus === 'ready' || state.gameStatus === 'finished') && (
+        {(state.gameStatus === "ready" || state.gameStatus === "finished") && (
           <button
             onClick={handleStartGame}
-            className={getButtonClass('primary')}
+            className={getButtonClass("primary")}
           >
-            {state.gameStatus === 'finished' ? 'Play Again' : 'Start Game'}
+            {state.gameStatus === "finished" ? "Play Again" : "Start Game"}
           </button>
         )}
-        
-        {(state.gameStatus === 'active' || state.gameStatus === 'paused') && (
+
+        {(state.gameStatus === "active" || state.gameStatus === "paused") && (
           <>
             <button
               onClick={handlePauseResumeToggle}
-              className={getButtonClass('primary')}
+              className={getButtonClass("primary")}
             >
-              {state.gameStatus === 'active' ? 'Pause' : 'Resume'}
+              {state.gameStatus === "active" ? "Pause" : "Resume"}
             </button>
-            
-            <button
-              onClick={resetGame}
-              className={getButtonClass('danger')}
-            >
+
+            <button onClick={resetGame} className={getButtonClass("danger")}>
               End Game
             </button>
           </>
         )}
       </div>
-      
-      {state.gameStatus === 'active' && (
+
+      {state.gameStatus === "active" && (
         <div className="mt-4">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-base font-bold text-white dark:text-white">
             Find as many words as you can before time runs out!
           </p>
         </div>

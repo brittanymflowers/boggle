@@ -41,36 +41,36 @@ export const WordList: React.FC<WordListProps> = ({ className = '' }) => {
 
   // Function to determine word class based on score and preferences
   const getWordClass = (word: Word) => {
-    let baseClass = 'py-1 px-2 rounded-md mr-1 mb-1 inline-block transition-all';
+    let baseClass = 'py-2 px-3 rounded-xl mr-2 mb-2 inline-block transition-all font-bold border-2';
     
     // Apply colors based on score and theme
     if (preferences.colorBlindMode) {
       if (word.score >= 5) {
-        baseClass += ' bg-yellow-500 text-black';
+        baseClass += ' bg-yellow-400 text-black border-yellow-600';
       } else if (word.score >= 3) {
-        baseClass += ' bg-blue-200 text-black';
+        baseClass += ' bg-blue-300 text-black border-blue-500';
       } else {
-        baseClass += ' bg-gray-200 text-black';
+        baseClass += ' bg-white text-black border-gray-400';
       }
     } else {
       if (word.score >= 5) {
-        baseClass += ' bg-purple-600 text-white';
+        baseClass += ' bg-yellow-400 text-black border-yellow-600';
       } else if (word.score >= 3) {
-        baseClass += ' bg-indigo-500 text-white';
+        baseClass += ' bg-blue-300 text-black border-blue-500';
       } else {
         baseClass += preferences.theme === 'dark' 
-          ? ' bg-gray-700 text-white' 
-          : ' bg-indigo-100 text-indigo-900';
+          ? ' bg-white text-black border-gray-400' 
+          : ' bg-white text-black border-gray-400';
       }
     }
     
     // Apply text size based on preferences
     if (preferences.textSize === 'large') {
-      baseClass += ' text-base';
+      baseClass += ' text-lg';
     } else if (preferences.textSize === 'small') {
-      baseClass += ' text-xs';
-    } else {
       baseClass += ' text-sm';
+    } else {
+      baseClass += ' text-base';
     }
     
     return baseClass;
@@ -78,18 +78,18 @@ export const WordList: React.FC<WordListProps> = ({ className = '' }) => {
 
   if (state.foundWords.length === 0) {
     return (
-      <div className={`bg-white dark:bg-gray-800 rounded-lg p-4 shadow ${className}`}>
-        <h2 className="text-lg font-bold mb-2 text-gray-800 dark:text-gray-200">Found Words</h2>
-        <p className="text-gray-500 dark:text-gray-400">No words found yet</p>
+      <div className={`bg-blue-500 dark:bg-blue-600 border-4 border-yellow-400 rounded-xl p-4 shadow-lg ${className}`}>
+        <h2 className="text-xl font-black mb-2 text-white dark:text-white">Found Words</h2>
+        <p className="text-white dark:text-white">No words found yet</p>
       </div>
     );
   }
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg p-4 shadow overflow-y-auto ${className}`}>
+    <div className={`bg-blue-500 dark:bg-blue-600 border-4 border-yellow-400 rounded-xl p-4 shadow-lg overflow-y-auto ${className}`}>
       <div className="flex justify-between items-center mb-3">
-        <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">Found Words</h2>
-        <span className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 px-2 py-1 rounded-full text-sm">
+        <h2 className="text-xl font-black text-white dark:text-white">Found Words</h2>
+        <span className="bg-yellow-400 dark:bg-yellow-500 text-black dark:text-black px-3 py-1 rounded-full text-sm font-bold border-2 border-yellow-600">
           {state.foundWords.length} words
         </span>
       </div>
@@ -97,7 +97,7 @@ export const WordList: React.FC<WordListProps> = ({ className = '' }) => {
       {sortedLengths.length > 0 ? (
         sortedLengths.map(length => (
           <div key={length} className="mb-4">
-            <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+            <h3 className="text-base font-bold text-white dark:text-white mb-2">
               {length} letters ({wordsByLength[length].length})
             </h3>
             <div className="flex flex-wrap">
