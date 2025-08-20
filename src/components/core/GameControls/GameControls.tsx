@@ -3,7 +3,6 @@ import { useGame } from "../../../context/GameContext2";
 import { usePreferences } from "../../../context/PreferencesContext";
 // Define Difficulty type directly
 type Difficulty = "easy" | "medium" | "hard";
-import { generateBoard } from "../../../utils/boardGenerator";
 
 interface GameControlsProps {
   className?: string;
@@ -46,7 +45,7 @@ export const GameControls: React.FC<GameControlsProps> = ({
     variant: "primary" | "secondary" | "danger" = "primary",
     disabled = false
   ) => {
-    let baseClass =
+    const baseClass =
       "px-5 py-3 rounded-xl border-4 font-bold text-lg transition-all focus:outline-none shadow-md";
 
     if (disabled) {

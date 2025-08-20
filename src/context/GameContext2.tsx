@@ -1,4 +1,5 @@
-import { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useReducer, useEffect } from 'react';
+import type { ReactNode } from 'react';
 
 // Define game types directly in this file
 interface Position {
@@ -99,6 +100,7 @@ function calculateWordScore(word: string): number {
 }
 
 // Game Reducer
+/* eslint-disable react-refresh/only-export-components */
 export const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case 'SET_BOARD':
@@ -381,25 +383,8 @@ export const gameReducer = (state: GameState, action: GameAction): GameState => 
 // Import the dictionary loader
 import { loadDictionary } from '../utils/dictionaryLoader';
 
-// Mock board generation function
-const generateBoard = (boardSize: number, difficulty: Difficulty): Letter[][] => {
-  // Generate a simple board with random letters
-  const board: Letter[][] = [];
-  const letters = 'abcdefghijklmnopqrstuvwxyz';
-  
-  for (let i = 0; i < boardSize; i++) {
-    const row: Letter[] = [];
-    for (let j = 0; j < boardSize; j++) {
-      const position: Position = { row: i, col: j };
-      const randomIndex = Math.floor(Math.random() * letters.length);
-      const char = letters[randomIndex];
-      row.push({ char, position, isSelected: false, isValidInPath: false });
-    }
-    board.push(row);
-  }
-  
-  return board;
-};
+// Import the generateBoard function
+import { generateBoard } from '../utils/boardGenerator';
 
 // Initial empty game state
 const initialGameState: GameState = {
@@ -534,6 +519,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 };
 
+/* eslint-disable react-refresh/only-export-components */
 export const useGame = () => {
   const context = useContext(GameContext);
   if (context === undefined) {
